@@ -1,0 +1,66 @@
+<html>
+<head>
+  <title>Position Twitter Lottery Draw</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hex2dec@1.1.2/index.min.js"></script>
+</head>
+
+<body >
+<div id="app">
+<div>Block Hash: <input type="text" v-model="blockhash"/></div>
+<div><button @click="roll">Roll!</button></div>
+<div v-if="winningNumber">
+  <p>Block Hash: <b>{{blockhash}}</b></p>
+  <p>Winning Number: <b>{{winningNumber}}</b></p>
+</div>
+</div>
+<script type="text/javascript">
+  function roll(hash){
+    const dec = window.hexToDec(hash);
+    const n = (dec%1000000000).toString()
+    // take the last 3 digits
+    const winningNumber = n.substr(n.length - 3)
+    return winningNumber;
+    // 296
+  }
+
+  var app = new Vue({
+    el: '#app',
+    mounted(){
+      const urlParams = new URLSearchParams(window.location.search);
+      const hash = urlParams.get('hash');
+      if(hash) this.blockhash = hash
+      this.roll()
+    },
+    data: {
+      blockhash: null,
+      winningNumber: null
+    },
+    methods: {
+      roll(){
+        const number = roll(this.blockhash)
+        if(!this.blockhash || !number){
+          return alert("Invalid blockhash")
+        }
+        this.winningNumber = number
+        updateQueryStringParameter(window.location.href, 'hash', this.blockhash)
+
+      }
+    }
+  })
+
+  function updateQueryStringParameter(uri, key, value) {
+    if ('URLSearchParams' in window) {
+      var searchParams = new URLSearchParams(window.location.search);
+      if(!searchParams.get(key)){
+        searchParams.set(key, value);
+        window.location.search = searchParams.toString();
+      }
+
+  }
+  }
+</script>
+
+</body>
+
+</html>
